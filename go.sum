@@ -1,0 +1,16 @@
+github.com/alecthomas/participle/v2 v2.1.1 h1:hrjKESvSqGHzRb4yW1ciisFJ4p3MGYih6icjJvbsmV8=
+github.com/alecthomas/participle/v2 v2.1.1/go.mod h1:Y1+hAs8DHPmc3YUFzqllV+eSQ9ljPTk0ZkPMtEdAx2c=
+github.com/expgo/ag v0.0.0-20240328061710-cdb907645f1c h1:IOPYkitfRUhQAW4WPA3KcpmiwCFHCXp+vBhTe0TCerg=
+github.com/expgo/ag v0.0.0-20240328061710-cdb907645f1c/go.mod h1:JYTtpf7MKW5v17Xo/wRDH2JvSiKEgpJcsxHwZa3TqEA=
+github.com/expgo/ag v0.0.0-20240328081802-efc116d41e38 h1:mMNVt8Gk0B2BhZa1ktBpxZ8dkYrSp1UwBV4rgcEFTh4=
+github.com/expgo/ag v0.0.0-20240328081802-efc116d41e38/go.mod h1:JYTtpf7MKW5v17Xo/wRDH2JvSiKEgpJcsxHwZa3TqEA=
+github.com/expgo/factory v0.0.0-20240327144822-6d2b1392e375 h1:gQGRQ+12psxyMyn06YKifkiLgc1gObUcdU0B4hASXVQ=
+github.com/expgo/factory v0.0.0-20240327144822-6d2b1392e375/go.mod h1:Ssm7eO31wbEAzrn0fl/OoglFtPCgQ8WLSXUXAPmsMmw=
+github.com/expgo/generic v0.0.0-20240323131353-339c0d4e5e11 h1:cWUgCuzaYf5WhAmgfsjQjAkug6357xree+yILbHUzIE=
+github.com/expgo/generic v0.0.0-20240323131353-339c0d4e5e11/go.mod h1:Q3Y49UmlJcsKsmbWI6VA4+Z+N66PfJcSOPM+XC/N1y8=
+github.com/expgo/structure v0.0.0-20240323135911-f5a9d5ef34ca h1:7iObTJirNoXgLjVJqoH+7KohNoJiX6nZF3vwdSUkVeI=
+github.com/expgo/structure v0.0.0-20240323135911-f5a9d5ef34ca/go.mod h1:+TyxUwrs9+ZD9liPu7uO02NiWADfZs3zECNU/eWA2AM=
+github.com/expr-lang/expr v1.16.3 h1:NLldf786GffptcXNxxJx5dQ+FzeWDKChBDqOOwyK8to=
+github.com/expr-lang/expr v1.16.3/go.mod h1:uCkhfG+x7fcZ5A5sXHKuQ07jGZRl6J0FCAaf2k4PtVQ=
+github.com/iancoleman/strcase v0.3.0 h1:nTXanmYxhfFAMjZL34Ov6gkzEsSJZ5DbhxWjvSASxEI=
+github.com/iancoleman/strcase v0.3.0/go.mod h1:iwCmte+B7n89clKwxIoIXy/HfoL7AsD47ZCWhYzw7ho=

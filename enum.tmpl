@@ -1,0 +1,420 @@
+{{- define "const"}}
+{{- $cfg := .Config -}}
+{{- $enumName := .Name -}}
+const (
+{{- range $ei, $item := .Items }}
+    {{- if not $cfg.NoComments }}
+    {{ if $item.IsBlankIdentifier }}// Skipped value.{{else}}// {{$item.GetCodeName}} is {{ IA $enumName }} of type {{$item.GetName}}.{{end}}
+    {{- end}}
+    {{- if $item.DocComment}}
+    {{$item.DocComment}}
+    {{- end}}
+    {{$item.GetConstLine}} {{ if $item.LineComment}}{{$item.LineComment}}{{- end}}
+{{- end}}
+)
+
+{{end -}}
+
+{{- define "body"}}
+{{- $enumName := .Name -}}
+{{- $enumType := .Type -}}
+{{- $cfg := .Config -}}
+{{- $nameAttr := .FindAttributeByName "Name" -}}
+
+{{ if .Config.Names -}}
+var ErrInvalid{{.Name}} = fmt.Errorf("not a valid {{.Name}}, try [%s]", strings.Join(_{{.Name}}Names, ", "))
+{{- else -}}
+var ErrInvalid{{.Name}} = errors.New("not a valid {{.Name}}")
+{{- end}}
+
+{{ if ne .Type.String "string" -}}
+var _{{.Name}}Name = "{{- range $ei, $item := .GetItems -}}{{$item.GetName}}{{- end -}}"
+{{- end}}
+
+{{/* ---------  attributes  --------- */}}
+{{ range $ai, $attr := .Attrs -}}
+{{- if $attr.IsValue -}}
+// Val is the attribute of {{$enumName}}.
+func (x {{$enumName}}) Val() {{$enumType.String}} {
+{{ if $cfg.PanicIfInvalid -}}
+    if x.IsValid() {
+        return {{$enumType.String}}(x)
+    }
+    panic(ErrInvalid{{$enumName}})
+{{- else -}}
+    return {{$enumType.String}}(x)
+{{- end}}
+}
+{{ else }}
+{{ if and (eq $attr.Name "Name") (eq $enumType.String "string") -}}
+{{$attr.Attribute2EnumMap}}
+{{- else -}}
+{{$attr.Enum2AttributeMap}}
+{{- end }}
+
+// {{$attr.Name}} is the attribute of {{$enumName}}.
+func (x {{$enumName}}) {{$attr.Name}}() {{$attr.Type.String}} {
+    {{ if and (eq $attr.Name "Name") (eq $enumType.String "string") -}}
+    if v, ok := {{$attr.Attribute2EnumVarName}}[string(x)]; ok {
+        return string(v)
+    }
+    {{- else -}}
+    if v, ok := {{$attr.Enum2AttributeVarName}}[x]; ok {
+        return v
+    }
+    {{- end}}
+{{ if $cfg.PanicIfInvalid -}}
+    panic(ErrInvalid{{$enumName}})
+{{- else -}}
+    {{ if eq $attr.Type.String "string" -}}
+        {{ if eq $enumType.String "string" -}}
+    return fmt.Sprintf("{{$enumName}}(%s).{{$attr.Name}}", string(x))
+        {{- else -}}
+    return fmt.Sprintf("{{$enumName}}(%d).{{$attr.Name}}", x)
+        {{- end}}
+    {{- else -}}
+    return 0
+    {{- end }}
+{{- end}}
+}
+{{end}}
+{{end}}
+
+{{/* ---------  values  --------- */}}
+{{ if .Config.Values }}
+var _{{.Name}}Values = []{{.Name}} { {{ range $ei, $item := .GetItems }}
+    {{$item.GetCodeName}},{{ end }}
+}
+
+// {{.Name}}Values returns a list of the values of {{.Name}}
+func {{.Name}}Values() []{{.Name}} {
+    return _{{.Name}}Values
+}
+{{ end -}}
+
+{{/* ---------  names  --------- */}}
+{{ if .Config.Names }}
+{{.Names}}
+
+// {{.Name}}Names returns a list of the names of {{.Name}}
+func {{.Name}}Names() []string {
+    return _{{.Name}}Names
+}
+{{ end -}}
+
+{{/* ---------  valid  --------- */}}
+{{ if ne .Type.String "string" -}}
+{{ $nameAttr.Enum2AttributeMap }}
+{{- end }}
+
+// IsValid provides a quick way to determine if the typed value is
+// part of the allowed enumerated values
+func (x {{.Name}}) IsValid() bool {
+    {{ if eq .Type.String "string" -}}
+    _, ok := {{$nameAttr.Attribute2EnumVarName}}[string(x)]
+    {{- else -}}
+	_, ok := {{$nameAttr.Enum2AttributeVarName}}[x]
+	{{- end}}
+	return ok
+}
+
+{{/* ---------  stringer and parse  --------- */}}
+{{ if .Config.StringParse }}
+{{- $stringParseAttr := .FindAttributeByName .Config.StringParseName -}}
+
+{{ if not (and (eq $stringParseAttr.Name "Name") (eq .Type.String "string")) }}
+{{ $stringParseAttr.Enum2AttributeMap }}
+{{ end }}
+
+// String implements the Stringer interface.
+func (x {{.Name}}) String() string {
+    {{ if eq $stringParseAttr.Type.String "string" -}}
+    return x.{{$stringParseAttr.Name}}()
+    {{- else -}}
+    return fmt.Sprintf("%v", x.{{$stringParseAttr.Name}}())
+    {{- end }}
+}
+
+{{ $stringParseAttr.Attribute2EnumMap }}
+
+// Parse{{.Name}} converts a string to {{ IA .Name }}.
+func Parse{{.Name}}(value string) ({{.Name}}, error) {
+{{ if eq $stringParseAttr.Type.String "string" -}}
+	if x, ok := {{$stringParseAttr.Attribute2EnumVarName}}[value]; ok {
+		return x, nil
+	}{{ if .Config.NoCase }}
+    if x, ok := {{$stringParseAttr.Attribute2EnumVarName}}[strings.ToLower(value)]; ok {
+        return x, nil
+    }
+    {{- end }}
+{{- else -}}
+    if v, err := {{ $stringParseAttr.ParseNumberFuncString }}
+    if err != nil {
+        return {{.EmptyEnumValue}}, fmt.Errorf("%s is %w, %w", value, ErrInvalid{{.Name}}, err)
+    }
+    if x, ok := {{$stringParseAttr.Attribute2EnumVarName}}[v]; ok {
+        return x, nil
+    }
+{{- end }}
+    return {{.EmptyEnumValue}}, fmt.Errorf("%s is %w", value, ErrInvalid{{.Name}})
+}
+{{ end }}
+
+{{/* ---------  must parse  --------- */}}
+{{ if .Config.MustParse }}
+// MustParse{{.Name}} converts a string to {{ IA .Name }}, and panics if is not valid.
+func MustParse{{.Name}}(value string) {{.Name}} {
+	val, err := Parse{{.Name}}(value)
+	if err != nil {
+		panic(err)
+	}
+	return val
+}
+{{end}}
+
+{{/* ---------  ptr  --------- */}}
+{{ if .Config.Ptr }}
+func (x {{.Name}}) Ptr() *{{.Name}} {
+	return &x
+}
+{{end}}
+
+{{/* ---------  flag  --------- */}}
+{{ if .Config.Flag }}
+// Set implements the Golang flag.Value interface func.
+func (x *{{.Name}}) Set(value string) error {
+	v, err := Parse{{.Name}}(value)
+	*x = v
+	return err
+}
+
+// Get implements the Golang flag.Getter interface func.
+func (x {{.Name}}) Get() any {
+	return x
+}
+{{end}}
+
+{{/* ---------  marshal  --------- */}}
+{{ if .Config.Marshal }}
+{{ if and .Config.StringParse (eq .Config.StringParseName .Config.MarshalName) }}
+// MarshalText implements the text marshaller method.
+func (x {{.Name}}) MarshalText() ([]byte, error) {
+	return []byte(x.String()), nil
+}
+
+// UnmarshalText implements the text unmarshaller method.
+func (x *{{.Name}}) UnmarshalText(text []byte) error {
+	val, err := Parse{{.Name}}(string(text))
+	if err != nil {
+		return err
+	}
+	*x = val
+	return nil
+}
+{{- else -}}
+{{- $mAttr := .FindAttributeByName .Config.MarshalName -}}
+
+{{ if not (and (eq $mAttr.Name "Name") (eq .Type.String "string")) }}
+{{ $mAttr.Enum2AttributeMap }}
+{{ end }}
+
+// MarshalText implements the text marshaller method.
+func (x {{.Name}}) MarshalText() ([]byte, error) {
+{{ if and (eq $mAttr.Name "Name") (eq .Type.String "string") -}}
+    if v, ok := {{$mAttr.Attribute2EnumVarName}}[string(x)]; ok {
+        return []byte(string(v)), nil
+    }
+    return nil, fmt.Sprintf("{{.Name}}(%s){{$mAttr.Name}}", string(x))
+{{- else -}}
+    if v, ok := {{$mAttr.Enum2AttributeVarName}}[x]; ok {
+        {{ if eq $mAttr.Type.String "string" -}}
+        return []byte(v), nil
+        {{- else -}}
+        return []byte(fmt.Sprintf("%v", v)), nil
+        {{- end }}
+    }
+    return nil, fmt.Sprintf("{{.Name}}(%d){{$mAttr.Name}}", x)
+{{- end}}
+}
+
+{{ $mAttr.Attribute2EnumMap }}
+
+// UnmarshalText implements the text unmarshaller method.
+func (x *{{.Name}}) UnmarshalText(text []byte) error {
+{{ if eq $mAttr.Type.String "string" -}}
+	if val, ok := {{$mAttr.Attribute2EnumVarName}}[string(text)]; ok {
+	    *x = val
+		return nil
+	}
+	{{ if .Config.NoCase -}}
+    if val, ok := {{$mAttr.Attribute2EnumVarName}}[strings.ToLower(string(text))]; ok {
+        *x = val
+        return nil
+    }
+    {{- end -}}
+{{- else -}}
+    if v, err := {{ $mAttr.ParseNumberFuncString }}
+    if err != nil {
+        return fmt.Errorf("%s is %w, %w", value, ErrInvalid{{.Name}}, err)
+    }
+    if val, ok := {{$mAttr.Attribute2EnumVarName}}[v]; ok {
+        *x = val
+        return nil
+    }
+{{- end -}}
+    return fmt.Errorf("%s is %w", value, ErrInvalid{{.Name}})
+}
+{{- end }}
+{{end}}
+
+{{/* ---------  sql  --------- */}}
+{{ if .Config.Sql }}
+{{- $sqlAttr := .FindAttributeByName .Config.SqlName -}}
+
+var Err{{.Name}}NilPtr = errors.New("value pointer is nil")
+
+{{ $sqlAttr.Attribute2EnumMap }}
+
+// Scan implements the Scanner interface.
+func (x *{{.Name}}) Scan(value any) (err error) {
+	if value == nil {
+		*x = {{.EmptyEnumValue}}
+		return
+	}
+
+{{ if eq $sqlAttr.Name "Val" }}
+    switch v := value.(type) {
+    {{if eq $sqlAttr.Type.String "string" -}}
+    case string:
+        *x = {{.Name}}(v)
+    case []byte:
+        *x = {{.Name}}(string(v))
+    case *string:
+        if v == nil {
+            return Err{{.Name}}NilPtr
+        }
+        *x = {{.Name}}(*v)
+    {{- else -}}
+    case int:
+        *x = {{.Name}}(v)
+    case int64:
+        *x = {{.Name}}(v)
+    case uint:
+        *x = {{.Name}}(v)
+    case uint64:
+        *x = {{.Name}}(v)
+    case float64:
+        *x = {{.Name}}(v)
+    case *int:
+        if v == nil {
+            return Err{{.Name}}NilPtr
+        }
+        *x = {{.Name}}(*v)
+    case *int64:
+        if v == nil {
+            return Err{{.Name}}NilPtr
+        }
+        *x = {{.Name}}(*v)
+    case *uint:
+        if v == nil {
+            return Err{{.Name}}NilPtr
+        }
+        *x = {{.Name}}(*v)
+    case *uint64:
+        if v == nil {
+            return Err{{.Name}}NilPtr
+        }
+        *x = {{.Name}}(*v)
+    case *float64:
+        if v == nil {
+            return Err{{.Name}}NilPtr
+        }
+        *x = {{.Name}}(*v)
+    {{- end }}
+    case {{.Name}}:
+        *x = v
+    case *{{.Name}}:
+        if v == nil {
+            return Err{{.Name}}NilPtr
+        }
+        *x = *v
+    }
+
+    if !x.IsValid() {
+        return ErrInvalid{{.Name}}
+    }
+    return
+{{- else -}}
+	var ok bool
+	switch v := value.(type) {
+	{{if eq $sqlAttr.Type.String "string" -}}
+	case string:
+    	*x, ok = {{$sqlAttr.Attribute2EnumVarName}}[v]
+    case []byte:
+        *x, ok = {{$sqlAttr.Attribute2EnumVarName}}[string(v)]
+    case *string:
+        if v == nil {
+            return Err{{.Name}}NilPtr
+        }
+        *x, ok = {{$sqlAttr.Attribute2EnumVarName}}[*v]
+	{{- else -}}
+	case int:
+        *x, ok = {{$sqlAttr.Attribute2EnumVarName}}[{{ WT "v" "int" $sqlAttr.Type.String }}]
+    case int64:
+        *x, ok = {{$sqlAttr.Attribute2EnumVarName}}[{{ WT "v" "int64" $sqlAttr.Type.String }}]
+    case uint:
+        *x, ok = {{$sqlAttr.Attribute2EnumVarName}}[{{ WT "v" "uint" $sqlAttr.Type.String }}]
+    case uint64:
+        *x, ok = {{$sqlAttr.Attribute2EnumVarName}}[{{ WT "v" "uint64" $sqlAttr.Type.String }}]
+    case float64:
+        *x, ok = {{$sqlAttr.Attribute2EnumVarName}}[{{ WT "v" "float64" $sqlAttr.Type.String }}]
+    case *int:
+        if v == nil {
+            return Err{{.Name}}NilPtr
+        }
+        *x, ok = {{$sqlAttr.Attribute2EnumVarName}}[{{ WT "*v" "int" $sqlAttr.Type.String }}]
+    case *int64:
+        if v == nil {
+            return Err{{.Name}}NilPtr
+        }
+        *x, ok = {{$sqlAttr.Attribute2EnumVarName}}[{{ WT "*v" "int64" $sqlAttr.Type.String }}]
+    case *uint:
+        if v == nil {
+            return Err{{.Name}}NilPtr
+        }
+        *x, ok = {{$sqlAttr.Attribute2EnumVarName}}[{{ WT "*v" "uint" $sqlAttr.Type.String }}]
+    case *uint64:
+        if v == nil {
+            return Err{{.Name}}NilPtr
+        }
+        *x, ok = {{$sqlAttr.Attribute2EnumVarName}}[{{ WT "*v" "uint64" $sqlAttr.Type.String }}]
+    case *float64:
+        if v == nil {
+            return Err{{.Name}}NilPtr
+        }
+        *x, ok = {{$sqlAttr.Attribute2EnumVarName}}[{{ WT "*v" "float64" $sqlAttr.Type.String }}]
+	{{- end }}
+    case {{.Name}}:
+        *x = v
+        ok = x.IsValid()
+    case *{{.Name}}:
+        if v == nil {
+            return Err{{.Name}}NilPtr
+        }
+        *x = *v
+        ok = x.IsValid()
+    }
+
+    if !ok {
+        return ErrInvalid{{.Name}}
+    }
+    return
+{{ end -}}
+}
+
+// Value implements the driver Valuer interface.
+func (x {{.Name}}) Value() (driver.Value, error) {
+	return x.{{$sqlAttr.Name}}(), nil
+}
+{{ end }}
+{{end -}}
