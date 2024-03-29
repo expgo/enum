@@ -1,4 +1,4 @@
-package main
+package enum
 
 import (
 	"github.com/expgo/ag/api"
