@@ -1,13 +1,14 @@
-package enum
+package main
 
 import (
 	"bytes"
 	"errors"
 	"fmt"
-	"github.com/expgo/ag"
+	"github.com/expgo/ag/api"
 	"github.com/expgo/generic/stream"
 	"github.com/expgo/structure"
 	"reflect"
+	"strings"
 )
 
 //go:generate enum
@@ -33,31 +34,31 @@ type Enum struct {
 	Config  *Config
 }
 
-func (e *Enum) UpdateAttributes(a *ag.Annotation) error {
-	if a.Params != nil && len(a.Params.List) > 0 {
-		for idx, p := range a.Params.List {
+func (e *Enum) UpdateAttributes(a *api.Annotation) error {
+	if len(a.Params) > 0 {
+		for idx, p := range a.Params {
 			if p.Value == nil {
-				return errors.New(fmt.Sprintf("Enum %s's attribute %s's type is empty", e.Name, p.Key.Text))
+				return errors.New(fmt.Sprintf("Enum %s's attribute %s's type is empty", e.Name, p.Key))
 			}
 			typeName, err := structure.ConvertTo[string](p.Value.Value())
 			if err != nil {
-				return errors.New(fmt.Sprintf("Enum %s's attribute %s's type parse error: %v", e.Name, p.Key.Text, err))
+				return errors.New(fmt.Sprintf("Enum %s's attribute %s's type parse error: %v", e.Name, p.Key, err))
 			}
 			t, err := getEnumAttributeKindByName(typeName)
 			if err != nil {
 				return errors.New(fmt.Sprintf("enum type err: %v", err))
 			}
 
-			comment := ag.GetCommentsText(p.Comments)
+			comment := strings.Join(p.Doc, "\n")
 			if len(comment) == 0 {
-				comment = ag.GetCommentText(p.Comment)
+				comment = p.Comment
 			}
 
 			e.Attrs = append(e.Attrs, &Attribute{
 				enum:    e,
 				idx:     idx,
 				isValue: false,
-				Name:    capitalize(p.Key.Text),
+				Name:    capitalize(p.Key),
 				Type:    t,
 				Comment: comment,
 			})
@@ -67,9 +68,9 @@ func (e *Enum) UpdateAttributes(a *ag.Annotation) error {
 	return nil
 }
 
-func (e *Enum) UpdateItems(a *ag.Annotation) error {
-	if a.Extends != nil && len(a.Extends.List) > 0 {
-		for idx, ex := range a.Extends.List {
+func (e *Enum) UpdateItems(a *api.Annotation) error {
+	if len(a.Extends) > 0 {
+		for idx, ex := range a.Extends {
 			var value any
 			if ex.Value != nil {
 				value = ex.Value.Value()
@@ -78,10 +79,10 @@ func (e *Enum) UpdateItems(a *ag.Annotation) error {
 			ei := &Item{
 				enum:        e,
 				idx:         idx,
-				Name:        ex.Name.Text,
+				Name:        ex.Name,
 				Value:       value,
-				DocComment:  ag.GetCommentsText(ex.Comments),
-				LineComment: ag.GetCommentText(ex.Comment),
+				DocComment:  strings.Join(ex.Doc, "\n"),
+				LineComment: ex.Comment,
 			}
 
 			if ei.Name == BlankIdentifier {
@@ -93,7 +94,7 @@ func (e *Enum) UpdateItems(a *ag.Annotation) error {
 			}
 
 			if !ei.IsBlankIdentifier {
-				ei.AttributeData = stream.Must(stream.Map[ag.Value, any](stream.Of(ex.Values), func(value ag.Value) (any, error) {
+				ei.AttributeData = stream.Must(stream.Map[api.Value, any](stream.Of(ex.Values), func(value api.Value) (any, error) {
 					return value.Value(), nil
 				}).ToSlice())
 			}
