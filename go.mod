@@ -3,7 +3,7 @@ module github.com/expgo/enum
 go 1.20
 
 require (
-	github.com/expgo/ag v0.0.0-20240329025116-d2252142591c
+	github.com/expgo/ag v0.0.0-20240329085942-e4b9c9769cb7
 	github.com/expgo/factory v0.0.0-20240327144822-6d2b1392e375
 	github.com/expgo/generic v0.0.0-20240323131353-339c0d4e5e11
 	github.com/expgo/structure v0.0.0-20240323135911-f5a9d5ef34ca
