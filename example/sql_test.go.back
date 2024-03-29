@@ -1,0 +1,238 @@
+package example
+
+import (
+	"testing"
+
+	"github.com/stretchr/testify/assert"
+)
+
+func TestSQLExtras(t *testing.T) {
+	assert.Equal(t, "ProjectStatus(22).Name", ProjectStatus(22).String(), "String value is not correct")
+
+	_, err := ParseProjectStatus(`NotAStatus`)
+	assert.Error(t, err, "Should have had an error parsing a non status")
+
+	var (
+		intVal      int = 3
+		nullInt     *int
+		nullInt64   *int64
+		nullFloat64 *float64
+		nullUint    *uint
+		nullUint64  *uint64
+	)
+
+	tests := map[string]struct {
+		input  interface{}
+		result *opt.SqlNull[ProjectStatus]
+	}{
+		"nil": {
+			result: &opt.SqlNull[ProjectStatus]{},
+		},
+		"val": {
+			input:  ProjectStatusRejected,
+			result: opt.NewSqlNull[ProjectStatus](ProjectStatusRejected),
+		},
+		"ptr": {
+			input:  ProjectStatusCompleted.Ptr(),
+			result: opt.NewSqlNull[ProjectStatus](ProjectStatusCompleted),
+		},
+		"int": {
+			input:  intVal,
+			result: opt.NewSqlNull[ProjectStatus](ProjectStatusRejected),
+		},
+		"*int": {
+			input:  &intVal,
+			result: opt.NewSqlNull[ProjectStatus](ProjectStatusRejected),
+		},
+		"nullInt": {
+			input:  nullInt,
+			result: &opt.SqlNull[ProjectStatus]{},
+		},
+		"nullInt64": {
+			input:  nullInt64,
+			result: &opt.SqlNull[ProjectStatus]{},
+		},
+		"nullUint": {
+			input:  nullUint,
+			result: &opt.SqlNull[ProjectStatus]{},
+		},
+		"nullUint64": {
+			input:  nullUint64,
+			result: &opt.SqlNull[ProjectStatus]{},
+		},
+		"nullFloat64": {
+			input:  nullFloat64,
+			result: &opt.SqlNull[ProjectStatus]{},
+		},
+	}
+
+	for name, tc := range tests {
+		t.Run(name, func(t *testing.T) {
+			status := &opt.SqlNull[ProjectStatus]{}
+			status.Scan(tc.input)
+			assert.Equal(t, tc.result, status)
+		})
+	}
+}
+
+func TestStrSQLExtras(t *testing.T) {
+	assert.Equal(t, "ProjectStrStatus(abc).Name", ProjectStrStatus("abc").String(), "String value is not correct")
+
+	_, err := ParseProjectStatus(`NotAStatus`)
+	assert.Error(t, err, "Should have had an error parsing a non status")
+
+	var (
+		strVal            string = "completed"
+		nullInt           *int
+		nullInt64         *int64
+		nullFloat64       *float64
+		nullUint          *uint
+		nullUint64        *uint64
+		nullString        *string
+		nullProjectStatus *ProjectStrStatus
+	)
+
+	tests := map[string]struct {
+		input  interface{}
+		result *opt.SqlNull[ProjectStrStatus]
+	}{
+		"nil": {
+			result: &opt.SqlNull[ProjectStrStatus]{},
+		},
+		"val": {
+			input:  ProjectStrStatusRejected,
+			result: opt.NewSqlNull[ProjectStrStatus](ProjectStrStatusRejected),
+		},
+		"ptr": {
+			input:  ProjectStrStatusCompleted.Ptr(),
+			result: opt.NewSqlNull[ProjectStrStatus](ProjectStrStatusCompleted),
+		},
+		"string": {
+			input:  strVal,
+			result: opt.NewSqlNull[ProjectStrStatus](ProjectStrStatusCompleted),
+		},
+		"*string": {
+			input:  &strVal,
+			result: opt.NewSqlNull[ProjectStrStatus](ProjectStrStatusCompleted),
+		},
+		"[]byte": {
+			input:  []byte(ProjectStrStatusInWork.String()),
+			result: opt.NewSqlNull[ProjectStrStatus](ProjectStrStatusInWork),
+		},
+		"nullInt": {
+			input:  nullInt,
+			result: &opt.SqlNull[ProjectStrStatus]{},
+		},
+		"nullInt64": {
+			input:  nullInt64,
+			result: &opt.SqlNull[ProjectStrStatus]{},
+		},
+		"nullUint": {
+			input:  nullUint,
+			result: &opt.SqlNull[ProjectStrStatus]{},
+		},
+		"nullUint64": {
+			input:  nullUint64,
+			result: &opt.SqlNull[ProjectStrStatus]{},
+		},
+		"nullFloat64": {
+			input:  nullFloat64,
+			result: &opt.SqlNull[ProjectStrStatus]{},
+		},
+		"nullString": {
+			input:  nullString,
+			result: &opt.SqlNull[ProjectStrStatus]{},
+		},
+		"nullProjectStatus": {
+			input:  nullProjectStatus,
+			result: &opt.SqlNull[ProjectStrStatus]{},
+		},
+	}
+
+	for name, tc := range tests {
+		t.Run(name, func(t *testing.T) {
+			status := &opt.SqlNull[ProjectStrStatus]{}
+			status.Scan(tc.input)
+			assert.Equal(t, tc.result, status)
+		})
+	}
+}
+
+func TestStrSQLIntExtras(t *testing.T) {
+	assert.Equal(t, "ProjectStrStatus(abc).Name", ProjectStrStatus("abc").String(), "String value is not correct")
+
+	_, err := ParseProjectStatus(`NotAStatus`)
+	assert.Error(t, err, "Should have had an error parsing a non status")
+
+	var (
+		intVal            int = 30
+		nullInt           *int
+		nullInt64         *int64
+		nullFloat64       *float64
+		nullUint          *uint
+		nullUint64        *uint64
+		nullString        *string
+		nullProjectStatus *ProjectStrStatusIntCode
+	)
+
+	tests := map[string]struct {
+		input  interface{}
+		result *opt.SqlNull[ProjectStrStatusIntCode]
+	}{
+		"nil": {
+			result: &opt.SqlNull[ProjectStrStatusIntCode]{},
+		},
+		"val": {
+			input:  ProjectStrStatusIntCodeRejected,
+			result: opt.NewSqlNull[ProjectStrStatusIntCode](ProjectStrStatusIntCodeRejected),
+		},
+		"ptr": {
+			input:  ProjectStrStatusIntCodeCompleted.Ptr(),
+			result: opt.NewSqlNull[ProjectStrStatusIntCode](ProjectStrStatusIntCodeCompleted),
+		},
+		"int": {
+			input:  intVal,
+			result: opt.NewSqlNull[ProjectStrStatusIntCode](ProjectStrStatusIntCodeRejected),
+		},
+		"*int": {
+			input:  &intVal,
+			result: opt.NewSqlNull[ProjectStrStatusIntCode](ProjectStrStatusIntCodeRejected),
+		},
+		"nullInt": {
+			input:  nullInt,
+			result: &opt.SqlNull[ProjectStrStatusIntCode]{},
+		},
+		"nullInt64": {
+			input:  nullInt64,
+			result: &opt.SqlNull[ProjectStrStatusIntCode]{},
+		},
+		"nullUint": {
+			input:  nullUint,
+			result: &opt.SqlNull[ProjectStrStatusIntCode]{},
+		},
+		"nullUint64": {
+			input:  nullUint64,
+			result: &opt.SqlNull[ProjectStrStatusIntCode]{},
+		},
+		"nullFloat64": {
+			input:  nullFloat64,
+			result: &opt.SqlNull[ProjectStrStatusIntCode]{},
+		},
+		"nullString": {
+			input:  nullString,
+			result: &opt.SqlNull[ProjectStrStatusIntCode]{},
+		},
+		"nullProjectStatus": {
+			input:  nullProjectStatus,
+			result: &opt.SqlNull[ProjectStrStatusIntCode]{},
+		},
+	}
+
+	for name, tc := range tests {
+		t.Run(name, func(t *testing.T) {
+			status := &opt.SqlNull[ProjectStrStatusIntCode]{}
+			status.Scan(tc.input)
+			assert.Equal(t, tc.result, status)
+		})
+	}
+}
