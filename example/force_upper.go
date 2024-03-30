@@ -1,7 +1,7 @@
 package example
 
 //@EnumConfig(forcelower)
-//go:generate go run ../../main.go
+//go:generate ag --dev-plugin=github.com/expgo/enum --dev-plugin-dir=../
 
 // @EnumConfig(forceupper)
 // @ENUM{
