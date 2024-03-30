@@ -94,7 +94,7 @@ func (e *Enum) UpdateItems(a *api.Annotation) error {
 			}
 
 			if !ei.IsBlankIdentifier {
-				ei.AttributeData = stream.Must(stream.Map[api.Value, any](stream.Of(ex.Values), func(value api.Value) (any, error) {
+				ei.AttributeData = stream.Must(stream.Map[structure.ValueWrapper, any](stream.Of(ex.Values), func(value structure.ValueWrapper) (any, error) {
 					return value.Value(), nil
 				}).ToSlice())
 			}
