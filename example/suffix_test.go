@@ -1,6 +1,6 @@
 package example
 
-//go:generate go run ../../main.go --file-suffix .enum.gen
+//go:generate ag --dev-plugin=github.com/expgo/enum --dev-plugin-dir=../ --file-suffix .enum.gen
 
 import (
 	"testing"
