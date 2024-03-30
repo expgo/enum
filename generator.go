@@ -49,7 +49,7 @@ func (eg *EnumGenerator) GetImports() []string {
 }
 
 func annotationsToEnumConfig(annotations *api.Annotations, globalConfig *Config) (result *Config, err error) {
-	enumConfAnnotation := annotations.FindAnnotationByName(AnnotationEnumConfig.Name())
+	enumConfAnnotation := annotations.FindAnnotationByName(AnnotationEnumConfig.Val())
 
 	if enumConfAnnotation != nil {
 		result = structure.Clone(globalConfig)
@@ -68,7 +68,7 @@ func annotationsToEnumConfig(annotations *api.Annotations, globalConfig *Config)
 }
 
 func AnnotationsToEnum(annotations *api.Annotations, ts *ast.TypeSpec, globalConfig *Config) (*Enum, error) {
-	enumAnnotation := annotations.FindAnnotationByName(AnnotationEnum.Name())
+	enumAnnotation := annotations.FindAnnotationByName(AnnotationEnum.Val())
 	if enumAnnotation == nil {
 		return nil, nil
 	}

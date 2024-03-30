@@ -15,8 +15,8 @@ func init() {
 
 func (f *Factory) Annotations() map[string][]api.AnnotationType {
 	return map[string][]api.AnnotationType{
-		AnnotationEnum.Name():       {api.AnnotationTypeGlobal, api.AnnotationTypeType},
-		AnnotationEnumConfig.Name(): {api.AnnotationTypeType},
+		AnnotationEnum.Val():       {api.AnnotationTypeType},
+		AnnotationEnumConfig.Val(): {api.AnnotationTypeGlobal, api.AnnotationTypeType},
 	}
 }
 
@@ -25,7 +25,7 @@ func (f *Factory) New(typedAnnotations []*api.TypedAnnotation) (api.Generator, e
 
 	for _, typedAnnotation := range typedAnnotations {
 		if typedAnnotation.Type == api.AnnotationTypeGlobal && typedAnnotation.Annotations != nil {
-			if an := typedAnnotation.Annotations.FindAnnotationByName(AnnotationEnumConfig.Name()); an != nil {
+			if an := typedAnnotation.Annotations.FindAnnotationByName(AnnotationEnumConfig.Val()); an != nil {
 				if err := an.To(ec); err != nil {
 					return nil, err
 				}
