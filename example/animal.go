@@ -1,6 +1,6 @@
 package example
 
-//go:generate go run ../../main.go
+//go:generate ag --dev-plugin=github.com/expgo/enum --dev-plugin-dir=../
 
 // Animal x @ENUM(Name string){
 // Cat(_),

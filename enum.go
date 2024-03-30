@@ -11,7 +11,7 @@ import (
 	"strings"
 )
 
-//go:generate enum
+//go:generate ag
 
 const (
 	BlankIdentifier = "_"
