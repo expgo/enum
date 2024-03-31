@@ -11,8 +11,6 @@ import (
 	"strings"
 )
 
-//go:generate ag
-
 const (
 	BlankIdentifier = "_"
 )

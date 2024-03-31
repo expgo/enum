@@ -6,11 +6,8 @@ import (
 	"go/ast"
 )
 
+// @Singleton
 type Factory struct {
-}
-
-func init() {
-	factory.Singleton[Factory]()
 }
 
 func (f *Factory) Annotations() map[string][]api.AnnotationType {
