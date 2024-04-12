@@ -1,7 +1,7 @@
 package example
 
 // @EnumConfig(marshal, nocase, flag, values, names)
-//go:generate ag --dev-plugin=github.com/expgo/enum --dev-plugin-dir=../
+//go:generate ag --dev-plugin=github.com/expgo/enum
 
 // X is doc'ed
 type X struct{}

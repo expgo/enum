@@ -1,6 +1,6 @@
 package example
 
-//go:generate ag --dev-plugin=github.com/expgo/enum --dev-plugin-dir=../
+//go:generate ag --dev-plugin=github.com/expgo/enum
 
 /*
 @EnumConfig(forcelower)

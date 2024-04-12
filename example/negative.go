@@ -1,7 +1,7 @@
 package example
 
 //@EnumConfig(nocase)
-//go:generate ag --dev-plugin=github.com/expgo/enum --dev-plugin-dir=../
+//go:generate ag --dev-plugin=github.com/expgo/enum
 
 /*
 @ENUM{

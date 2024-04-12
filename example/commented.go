@@ -1,7 +1,7 @@
 package example
 
 //@EnumConfig(marshal, nocase)
-//go:generate ag --dev-plugin=github.com/expgo/enum --dev-plugin-dir=../
+//go:generate ag --dev-plugin=github.com/expgo/enum
 
 // Commented is an enumeration of commented values
 /*
