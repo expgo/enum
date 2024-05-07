@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/expgo/ag/api"
-	"github.com/expgo/generic/stream"
 	"github.com/expgo/structure"
 	"reflect"
 	"strings"
@@ -92,9 +91,9 @@ func (e *Enum) UpdateItems(a *api.Annotation) error {
 			}
 
 			if !ei.IsBlankIdentifier {
-				ei.AttributeData = stream.Must(stream.Map[structure.ValueWrapper, any](stream.Of(ex.Values), func(value structure.ValueWrapper) (any, error) {
-					return value.Value(), nil
-				}).ToSlice())
+				for _, v := range ex.Values {
+					ei.AttributeData = append(ei.AttributeData, v.Value())
+				}
 			}
 
 			e.Items = append(e.Items, ei)
@@ -219,17 +218,20 @@ func (e *Enum) checkAndUpdateValueAttribute() error {
 			}
 		}
 	} else {
-		if stream.Must(stream.Of(e.GetItems()).AnyMatch(func(item *Item) (bool, error) { return item.Value != nil, nil })) {
-			nextValue := 0
-			for _, item := range e.Items {
-				if item.Value == nil {
-					item.Value = nextValue
-					nextValue += 1
-				} else {
-					item.Value = structure.MustConvertTo[int](item.Value)
-					nextValue = item.Value.(int) + 1
+		for _, item := range e.GetItems() {
+			if item.Value != nil {
+				nextValue := 0
+				for _, item := range e.Items {
+					if item.Value == nil {
+						item.Value = nextValue
+						nextValue += 1
+					} else {
+						item.Value = structure.MustConvertTo[int](item.Value)
+						nextValue = item.Value.(int) + 1
+					}
+					item.Value = structure.MustConvertToKind(item.Value, e.Type)
 				}
-				item.Value = structure.MustConvertToKind(item.Value, e.Type)
+				break
 			}
 		}
 	}
@@ -283,7 +285,11 @@ func (e *Enum) FindAttributeByName(name string) *Attribute {
 }
 
 func (e *Enum) GetItems() []*Item {
-	return stream.Must(stream.Of(e.Items).Filter(func(item *Item) (bool, error) {
-		return !item.IsBlankIdentifier, nil
-	}).ToSlice())
+	items := []*Item{}
+	for _, item := range e.Items {
+		if !item.IsBlankIdentifier {
+			items = append(items, item)
+		}
+	}
+	return items
 }

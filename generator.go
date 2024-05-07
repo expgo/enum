@@ -5,9 +5,9 @@ import (
 	"errors"
 	"fmt"
 	"github.com/expgo/ag/api"
-	"github.com/expgo/generic/stream"
 	"github.com/expgo/structure"
 	"go/ast"
+	"sort"
 	"strings"
 	"text/template"
 )
@@ -39,7 +39,11 @@ func NewEnumGenerator(allEnums []*Enum) *EnumGenerator {
 
 	result.Tmpl = template.Must(tmpl.ParseFS(enumTmpl, "*.tmpl"))
 
-	result.DataList = stream.Must(stream.Of(allEnums).Sort(func(x, y *Enum) int { return strings.Compare(x.Name, y.Name) }).ToSlice())
+	sort.Slice(result.DataList, func(i, j int) bool {
+		x := result.DataList[i]
+		y := result.DataList[j]
+		return strings.Compare(x.Name, y.Name) < 0
+	})
 
 	return result
 }

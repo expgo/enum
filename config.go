@@ -2,8 +2,6 @@ package enum
 
 import (
 	"fmt"
-	"github.com/expgo/generic/stream"
-	"reflect"
 )
 
 type Config struct {
@@ -68,7 +66,14 @@ func (ec *Config) checkConfigAttributeName(paramName, errName string) error {
 		return fmt.Errorf("enum config %s must exist in enum attributes", errName)
 	} else {
 		// all enumTypes is number or string, bool and float not suitable as a map key
-		if !stream.Must(stream.Of(enumTypes).Contains(attr.Type, func(x, y reflect.Kind) (bool, error) { return x == y, nil })) {
+		contains := false
+		for _, enumType := range enumTypes {
+			if enumType == attr.Type {
+				contains = true
+				break
+			}
+		}
+		if !contains {
 			return fmt.Errorf("%s 's type muse be number or string", errName)
 		}
 	}
