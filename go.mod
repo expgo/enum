@@ -11,7 +11,6 @@ require (
 )
 
 require (
-	github.com/alecthomas/participle/v2 v2.1.1 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/expgo/sync v0.0.0-20240416034417-7c4de7477076 // indirect
 	github.com/expr-lang/expr v1.16.5 // indirect
