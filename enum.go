@@ -218,8 +218,8 @@ func (e *Enum) checkAndUpdateValueAttribute() error {
 			}
 		}
 	} else {
-		for _, item := range e.GetItems() {
-			if item.Value != nil {
+		for _, it := range e.GetItems() {
+			if it.Value != nil {
 				nextValue := 0
 				for _, item := range e.Items {
 					if item.Value == nil {

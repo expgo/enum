@@ -39,6 +39,8 @@ func NewEnumGenerator(allEnums []*Enum) *EnumGenerator {
 
 	result.Tmpl = template.Must(tmpl.ParseFS(enumTmpl, "*.tmpl"))
 
+	result.DataList = append([]*Enum(nil), allEnums...)
+
 	sort.Slice(result.DataList, func(i, j int) bool {
 		x := result.DataList[i]
 		y := result.DataList[j]
