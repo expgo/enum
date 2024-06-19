@@ -7,6 +7,7 @@ import (
 	"github.com/expgo/ag/api"
 	"github.com/expgo/structure"
 	"go/ast"
+	"reflect"
 	"sort"
 	"strings"
 	"text/template"
@@ -27,6 +28,20 @@ func wrapType(inner string, sourceType string, targetType string) string {
 	return fmt.Sprintf("%s(%s)", targetType, inner)
 }
 
+func defaultValueByKind(kind reflect.Kind) string {
+	value, err := structure.ConvertToKind(0, kind)
+	if err != nil {
+		panic(errors.New(fmt.Sprintf("default value by kind err: %v", err)))
+	}
+
+	ret, err := structure.ConvertTo[string](value)
+	if err != nil {
+		panic(errors.New(fmt.Sprintf("default value by kind, convert to string err: %v", err)))
+	}
+
+	return ret
+}
+
 func NewEnumGenerator(allEnums []*Enum) *EnumGenerator {
 	result := &EnumGenerator{}
 
@@ -35,6 +50,7 @@ func NewEnumGenerator(allEnums []*Enum) *EnumGenerator {
 	funcs := template.FuncMap{}
 	funcs["IA"] = IndefiniteArticle
 	funcs["WT"] = wrapType
+	funcs["DV"] = defaultValueByKind
 	tmpl.Funcs(funcs)
 
 	result.Tmpl = template.Must(tmpl.ParseFS(enumTmpl, "*.tmpl"))
