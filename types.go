@@ -6,6 +6,10 @@ import (
 	"reflect"
 )
 
+var kindMap = map[string]reflect.Kind{
+	"byte": reflect.Uint8,
+}
+
 var enumTypes = []reflect.Kind{
 	reflect.Int,
 	reflect.Int8,
@@ -27,6 +31,10 @@ var enumAttributeTypes = append(enumTypes,
 )
 
 func getEnumKindByName(name string) (reflect.Kind, error) {
+	if v, ok := kindMap[name]; ok {
+		return v, nil
+	}
+
 	for _, k := range enumTypes {
 		if k.String() == name {
 			return k, nil
