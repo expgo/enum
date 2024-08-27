@@ -45,6 +45,10 @@ func getEnumKindByName(name string) (reflect.Kind, error) {
 }
 
 func getEnumAttributeKindByName(name string) (reflect.Kind, error) {
+	if v, ok := kindMap[name]; ok {
+		return v, nil
+	}
+
 	for _, k := range enumAttributeTypes {
 		if k.String() == name {
 			return k, nil
