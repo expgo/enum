@@ -6,21 +6,21 @@ import (
 
 type Config struct {
 	enum            *Enum
-	Prefix          string
-	NoPrefix        bool   `value:"false"` // 所有生成的枚举不携带类型名称前缀
-	StringParse     bool   `value:"true"`
-	StringParseName string `value:"Name"`
-	Flag            bool   `value:"false"`
-	MustParse       bool   `value:"false"`
-	Marshal         bool   `value:"false"`
-	MarshalName     string `value:"Name"`
-	Sql             bool   `value:"false"`
-	SqlName         string `value:"Val"`
-	Names           bool   `value:"false"` // enum name list
-	Values          bool   `value:"false"` // enum item list
-	NoCase          bool   `value:"false"` // case insensitivity
-	NoCamel         bool   `value:"false"`
-	NoComments      bool   `value:"false"`
+	Prefix          string // default prefix will be the enum type name
+	NoPrefix        bool   `value:"false"` // if true, the enum will use the enum item name direct, else will create enum item with enum type prefix
+	StringParse     bool   `value:"true"`  // create
+	StringParseName string `value:"Name"`  // parse method use which enum parameter
+	Flag            bool   `value:"false"` // if true, create code used with flag
+	MustParse       bool   `value:"false"` // if true, create muse parse method
+	Marshal         bool   `value:"false"` // if true, create Marshal interface method
+	MarshalName     string `value:"Name"`  // Marshal interface use which enum parameter
+	Sql             bool   `value:"false"` // if true, create code used with sql
+	SqlName         string `value:"Val"`   // sql method use which enum parameter
+	Names           bool   `value:"false"` // if true, create enum name list
+	Values          bool   `value:"false"` // if true, create enum item list
+	NoCase          bool   `value:"false"` // case insensitivity with parse method
+	NoCamel         bool   `value:"false"` // if true, do nothing with enum name
+	NoComments      bool   `value:"false"` // if true, will not create comments
 	Ptr             bool   `value:"false"`
 	ForceUpper      bool   `value:"false"`
 	ForceLower      bool   `value:"false"`
