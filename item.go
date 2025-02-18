@@ -52,6 +52,11 @@ func (ei *Item) GetName() string {
 
 	name := ei.AttributeData[nameAttr.idx].(string)
 
+	// fix number _9600, see example/number.go
+	if len(name) > 1 && strings.HasPrefix(name, BlankIdentifier) {
+		name = name[1:]
+	}
+
 	if ei.enum.Config.ForceUpper {
 		return strings.ToUpper(name)
 	}
